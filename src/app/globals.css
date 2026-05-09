@@ -5,11 +5,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Custom global styles */
-* {
+/* * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-}
+} */
 
 html {
   scroll-behavior: smooth;
@@ -26,6 +26,8 @@ html {
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.4813 0.0224 157.2697);
   --secondary-foreground: oklch(1 0 0);
+  --success: oklch(0.45 0.15 145);
+  --success-foreground: oklch(1 0 0);
   --muted: oklch(0.9143 0.04 258.81);
   --muted-foreground: oklch(0.3941 0.0224 160.1408);
   --accent: oklch(0.9017 0.0209 156.7855);
@@ -191,6 +193,9 @@ html {
   --tracking-wide: calc(var(--tracking-normal) + 0.025em);
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
 }
 
 @layer base {
