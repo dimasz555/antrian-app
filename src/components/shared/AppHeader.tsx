@@ -1,0 +1,38 @@
+"use client";
+
+import { Bell, Menu } from "lucide-react";
+
+type Props = {
+  title: string;
+  namaUser: string;
+};
+
+export default function AppHeader({ title, namaUser }: Props) {
+  return (
+    <header className="h-16 px-5 flex items-center justify-between bg-background border-b border-border sticky top-0 z-40 shadow-sm">
+      {/* Kiri */}
+      <div className="flex items-center gap-4">
+        <button className="md:hidden p-2 rounded-lg hover:bg-accent transition-colors">
+          <Menu size={20} className="text-muted-foreground" />
+        </button>
+        <h2 className="text-lg font-bold text-primary">{title}</h2>
+      </div>
+
+      {/* Kanan */}
+      <div className="flex items-center gap-3">
+        <button className="p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground relative">
+          <Bell size={20} />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
+        </button>
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border">
+          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">
+            {namaUser.charAt(0).toUpperCase()}
+          </div>
+          <span className="text-sm font-medium text-foreground hidden sm:block">
+            {namaUser}
+          </span>
+        </div>
+      </div>
+    </header>
+  );
+}

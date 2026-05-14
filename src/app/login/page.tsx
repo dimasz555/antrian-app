@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { Eye, EyeOff, LogIn, UserCircle, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -13,15 +13,21 @@ export default function LoginPage() {
   const searchParams = useSearchParams();
   const [form, setForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
+  // Notifikasi sesi expired — cukup sekali saat mount
   const reason = searchParams.get("reason");
   if (reason === "expired") {
     toast.warning("Sesi anda telah berakhir, silakan login kembali");
   }
 
   const handleSubmit = async () => {
-    setLoading(true);
+    if (!form.username.trim() || !form.password.trim()) {
+      toast.error("Username dan password wajib diisi");
+      return;
+    }
 
+    setLoading(true);
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
@@ -32,8 +38,7 @@ export default function LoginPage() {
       const json = await res.json();
 
       if (!json.success) {
-        // Toast error jika login gagal
-        toast.error(json.message);
+        toast.error(json.message ?? "Login gagal");
         return;
       }
 
@@ -41,7 +46,7 @@ export default function LoginPage() {
 
       const { role } = json.data;
       if (role === "ADMIN") {
-        router.push("/admin/dashboard");
+        router.push("/admin/poli");
       } else {
         router.push("/antrian");
       }
@@ -53,53 +58,125 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-full max-w-sm">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-primary">
-            Sistem Antrian
-          </CardTitle>
-          <p className="text-muted-foreground text-sm mt-1">
-            Masuk ke akun Anda
-          </p>
-        </CardHeader>
+    <div className="w-full max-w-md flex flex-col items-center gap-8">
+      <div className="text-center space-y-1 px-2">
+        <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tight">
+          SISTEM INFORMASI
+          <br />
+          MANAJEMEN ANTRIAN
+        </h1>
+      </div>
 
-        <CardContent className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              placeholder="Masukkan username"
-              value={form.username}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, username: e.target.value }))
-              }
-            />
+      <div
+        className="w-full border border-border rounded-2xl overflow-hidden"
+        style={{
+          background: "rgba(255, 255, 255, 0.95)",
+          backdropFilter: "blur(8px)",
+          boxShadow: "0 4px 12px rgba(0, 101, 101, 0.08)",
+        }}
+      >
+        <div className="p-7 md:p-9 space-y-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-semibold text-foreground">
+              Selamat Datang
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Silahkan masuk dengan menggunakan nama pengguna dan kata sandi.
+            </p>
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Masukkan password"
-              value={form.password}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, password: e.target.value }))
-              }
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-            />
-          </div>
+          <div className="space-y-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="username" className="text-sm font-medium">
+                Nama Pengguna
+              </Label>
+              <div className="relative">
+                <UserCircle
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                />
+                <Input
+                  id="username"
+                  name="username"
+                  placeholder="Masukkan nama pengguna"
+                  autoComplete="username"
+                  value={form.username}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, username: e.target.value }))
+                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  className="pl-10"
+                />
+              </div>
+            </div>
 
-          <Button
-            className="w-full mt-2"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? "Memproses..." : "Masuk"}
-          </Button>
-        </CardContent>
-      </Card>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-sm font-medium">
+                Kata Sandi
+              </Label>
+              <div className="relative">
+                <Lock
+                  size={18}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                />
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, password: e.target.value }))
+                  }
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+                  className="pl-10 pr-11"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  aria-label={
+                    showPassword ? "Sembunyikan sandi" : "Tampilkan sandi"
+                  }
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            <label className="flex items-center gap-2.5 cursor-pointer group w-fit">
+              <input
+                type="checkbox"
+                name="remember"
+                className="w-4 h-4 rounded border-border text-primary accent-primary focus:ring-primary/50 transition-all"
+              />
+              <span className="text-sm text-muted-foreground group-hover:text-foreground transition-colors select-none">
+                Tetap masuk
+              </span>
+            </label>
+
+            <Button
+              className="w-full mt-1 gap-2"
+              size="lg"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="w-4 h-4 rounded-full border-2 border-primary-foreground border-t-transparent animate-spin" />
+                  Memproses...
+                </>
+              ) : (
+                <>
+                  Masuk ke Sistem
+                  <LogIn size={17} />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
