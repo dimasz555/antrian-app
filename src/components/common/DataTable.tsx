@@ -12,7 +12,7 @@ type Props = {
   onSearch?: (value: string) => void;
   onTambah?: () => void;
   labelTambah?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   footer?: React.ReactNode;
   toolbar?: React.ReactNode; // tombol tambahan di toolbar
 };

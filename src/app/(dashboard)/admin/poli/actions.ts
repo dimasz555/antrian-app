@@ -13,8 +13,11 @@ type PoliInput = {
 // CREATE
 export async function createPoli(data: PoliInput) {
   try {
-    const isAvailable = await prisma.poli.findUnique({
-      where: { kode: data.kode.toUpperCase() },
+    const isAvailable = await prisma.poli.findFirst({
+      where: {
+        kode: data.kode.toUpperCase(),
+        deletedAt: null,
+      },
     });
 
     if (isAvailable) {
@@ -40,10 +43,10 @@ export async function createPoli(data: PoliInput) {
 // UPDATE
 export async function updatePoli(id: number, data: PoliInput) {
   try {
-    // Cek kode duplikat (kecuali poli itu sendiri)
     const isAvailable = await prisma.poli.findFirst({
       where: {
         kode: data.kode.toUpperCase(),
+        deletedAt: null,
         NOT: { id },
       },
     });
@@ -87,7 +90,10 @@ export async function deletePoli(id: number) {
       };
     }
 
-    await prisma.poli.delete({ where: { id } });
+    await prisma.poli.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
 
     revalidatePath("/admin/poli");
     return { success: true, message: "Poli berhasil dihapus" };
@@ -111,5 +117,38 @@ export async function toggleAktifPoli(id: number, aktif: boolean) {
     };
   } catch {
     return { success: false, message: "Gagal mengubah status poli" };
+  }
+}
+
+// Get deleted data poli
+export async function getDeletedPoli() {
+  return prisma.poli.findMany({
+    where: { deletedAt: { not: null } },
+    orderBy: { deletedAt: "desc" },
+  });
+}
+
+// Restore
+export async function restorePoli(id: number) {
+  try {
+    await prisma.poli.update({
+      where: { id },
+      data: { deletedAt: null },
+    });
+    revalidatePath("/admin/poli");
+    return { success: true, message: "Poli berhasil dipulihkan" };
+  } catch {
+    return { success: false, message: "Gagal memulihkan poli" };
+  }
+}
+
+// Deleted Permanent
+export async function hardDeletePoli(id: number) {
+  try {
+    await prisma.poli.delete({ where: { id } });
+    revalidatePath("/admin/poli");
+    return { success: true, message: "Poli berhasil dihapus permanen" };
+  } catch {
+    return { success: false, message: "Gagal menghapus permanen" };
   }
 }

@@ -13,8 +13,11 @@ export async function POST(request: NextRequest) {
       return errorResponse("Username dan password wajib diisi", 400);
     }
 
-    const user = await prisma.user.findUnique({
-      where: { username: body.username },
+    const user = await prisma.user.findFirst({
+      where: {
+        username: body.username,
+        deletedAt: null,
+      },
     });
 
     // check user exist

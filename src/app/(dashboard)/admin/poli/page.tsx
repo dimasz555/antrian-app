@@ -4,23 +4,29 @@ import PageHeader from "@/components/common/PageHeader";
 import StatCard from "@/components/common/StatCard";
 import PoliClient from "./PoliClient";
 
-async function getPoliList() {
-  return prisma.poli.findMany({
-    orderBy: { urutan: "asc" },
-    include: {
-      _count: {
-        select: {
-          antrian: {
-            where: { status: { in: ["MENUNGGU", "DIPANGGIL"] } },
+async function getData() {
+  const [poliList, deletedList] = await Promise.all([
+    prisma.poli.findMany({
+      where: { deletedAt: null },
+      orderBy: { urutan: "asc" },
+      include: {
+        _count: {
+          select: {
+            antrian: { where: { status: { in: ["MENUNGGU", "DIPANGGIL"] } } },
           },
         },
       },
-    },
-  });
+    }),
+    prisma.poli.findMany({
+      where: { deletedAt: { not: null } },
+      orderBy: { deletedAt: "desc" },
+    }),
+  ]);
+  return { poliList, deletedList };
 }
 
 export default async function AdminPoliPage() {
-  const poliList = await getPoliList();
+  const { poliList, deletedList } = await getData();
 
   const totalAktif = poliList.filter((p) => p.aktif).length;
   const totalNonaktif = poliList.length - totalAktif;
@@ -52,8 +58,7 @@ export default async function AdminPoliPage() {
         />
       </div>
 
-      {/* Pass data ke client component */}
-      <PoliClient poliList={poliList} />
+      <PoliClient poliList={poliList} deletedList={deletedList} />
     </div>
   );
 }

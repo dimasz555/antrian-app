@@ -33,7 +33,7 @@ const ADMIN_NAV: NavItem[] = [
     href: "/admin/poli",
     icon: <Stethoscope size={20} />,
   },
-  { label: "Manajemen User", href: "/admin/users", icon: <Users size={20} /> },
+  { label: "Manajemen Petugas", href: "/admin/petugas", icon: <Users size={20} /> },
   { label: "Laporan", href: "/admin/laporan", icon: <BarChart2 size={20} /> },
 ];
 
@@ -56,7 +56,6 @@ export default function AppSidebar({ role, namaUser }: Props) {
 
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 bg-muted/40 border-r border-border fixed left-0 top-0 z-50">
-      {/* Logo */}
       <div className="px-6 py-6 border-b border-border">
         <h1 className="text-lg font-bold text-primary leading-tight">
           Puskesmas Digital
@@ -102,7 +101,7 @@ export default function AppSidebar({ role, namaUser }: Props) {
       <div className="border-t border-border px-3 py-3 flex flex-col gap-1">
         {/* Info user */}
         <div className="flex items-center gap-3 px-4 py-2 mb-1">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
             {namaUser.charAt(0).toUpperCase()}
           </div>
           <div className="min-w-0">

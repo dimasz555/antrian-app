@@ -13,7 +13,7 @@ export default function PageHeader({ title, description, action }: Props) {
           <p className="text-muted-foreground text-sm mt-1">{description}</p>
         )}
       </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   );
 }

@@ -18,6 +18,8 @@ type Props = {
   loading?: boolean;
   title?: string;
   description?: string;
+  confirmLabel?: string;
+  confirmVariant?: "default" | "destructive";
 };
 
 export default function ConfirmDialog({
@@ -27,6 +29,8 @@ export default function ConfirmDialog({
   loading = false,
   title = "Konfirmasi Hapus",
   description = "Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.",
+  confirmLabel = "Hapus",
+  confirmVariant = "destructive",
 }: Props) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -39,9 +43,13 @@ export default function ConfirmDialog({
           <Button variant="outline" onClick={onClose} disabled={loading}>
             Batal
           </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={loading}>
+          <Button
+            variant={confirmVariant}
+            onClick={onConfirm}
+            disabled={loading}
+          >
             {loading && <Loader2 size={15} className="animate-spin mr-1" />}
-            Hapus
+            {confirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -8,42 +8,46 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   nama      String
-  username  String   @unique
-  password  String // bcrypt hashed
+  username  String
+  password  String
   role      RoleUser
-  aktif     Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  aktif     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   poliId       Int?
   poli         Poli?          @relation("PetugasPoli", fields: [poliId], references: [id])
   antrian      Antrian[]      @relation("PanggilAntrian")
   logAktivitas LogAktivitas[]
 
+  @@unique([username, deletedAt])
   @@map("user")
 }
 
 model Poli {
-  id        Int      @id @default(autoincrement())
-  kode      String   @unique
+  id        Int       @id @default(autoincrement())
+  kode      String
   nama      String
-  aktif     Boolean  @default(true)
-  urutan    Int 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  aktif     Boolean   @default(true)
+  urutan    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   antrian Antrian[]
   petugas User[]    @relation("PetugasPoli")
 
+  @@unique([kode, deletedAt])
   @@map("poli")
 }
 
 model Antrian {
   id            Int           @id @default(autoincrement())
   kodeAntrian   String
-  nomorUrut     Int 
+  nomorUrut     Int
   status        StatusAntrian @default(MENUNGGU)
   tanggal       DateTime      @default(now())
   jumlahPanggil Int           @default(1)
@@ -76,7 +80,7 @@ model Konfigurasi {
 
 model LogAktivitas {
   id         Int      @id @default(autoincrement())
-  aksi       String 
+  aksi       String
   keterangan String?
   userId     String
   createdAt  DateTime @default(now())
