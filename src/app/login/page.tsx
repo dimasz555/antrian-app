@@ -169,7 +169,7 @@ export default function LoginPage() {
                 </>
               ) : (
                 <>
-                  Masuk ke Sistem
+                  Masuk
                   <LogIn size={17} />
                 </>
               )}

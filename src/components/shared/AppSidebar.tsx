@@ -11,6 +11,7 @@ import {
   LogOut,
   PlusCircle,
   ClipboardList,
+  UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,7 +22,6 @@ type NavItem = {
   icon: React.ReactNode;
 };
 
-// ── Nav per role ───────────────────────────────────────
 const ADMIN_NAV: NavItem[] = [
   {
     label: "Dashboard",
@@ -33,15 +33,39 @@ const ADMIN_NAV: NavItem[] = [
     href: "/admin/poli",
     icon: <Stethoscope size={20} />,
   },
-  { label: "Manajemen Petugas", href: "/admin/petugas", icon: <Users size={20} /> },
+  {
+    label: "Manajemen Petugas",
+    href: "/admin/petugas",
+    icon: <Users size={20} />,
+  },
   { label: "Laporan", href: "/admin/laporan", icon: <BarChart2 size={20} /> },
+  {
+    label: "Profil Saya",
+    href: "/admin/profil",
+    icon: <UserCircle size={20} />,
+  },
+  {
+    label: "Pengaturan",
+    href: "/admin/pengaturan",
+    icon: <Settings size={20} />,
+  },
 ];
 
 const PETUGAS_NAV: NavItem[] = [
   {
     label: "Antrian Saya",
-    href: "/poli/antrian",
+    href: "/petugas/antrian",
     icon: <ClipboardList size={20} />,
+  },
+  {
+    label: "Profil Saya",
+    href: "/petugas/profil",
+    icon: <UserCircle size={20} />,
+  },
+  {
+    label: "Pengaturan",
+    href: "/petugas/pengaturan",
+    icon: <Settings size={20} />,
   },
 ];
 
@@ -97,30 +121,7 @@ export default function AppSidebar({ role, namaUser }: Props) {
         )}
       </nav>
 
-      {/* Bottom nav */}
-      <div className="border-t border-border px-3 py-3 flex flex-col gap-1">
-        {/* Info user */}
-        <div className="flex items-center gap-3 px-4 py-2 mb-1">
-          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shrink-0">
-            {namaUser.charAt(0).toUpperCase()}
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-foreground truncate">
-              {namaUser}
-            </p>
-            <p className="text-xs text-muted-foreground">
-              {role === "ADMIN" ? "Administrator" : "Petugas Poli"}
-            </p>
-          </div>
-        </div>
-
-        <Link
-          href="/settings"
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-all"
-        >
-          <Settings size={18} />
-          Pengaturan
-        </Link>
+      <div className="border-t border-border px-3 py-3">
         <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all">
           <LogOut size={18} />
           Keluar

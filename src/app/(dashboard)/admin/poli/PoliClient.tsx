@@ -268,7 +268,11 @@ export default function PoliClient({ poliList, deletedList }: Props) {
                           <button
                             onClick={() => handleToggleAktif(poli)}
                             title={poli.aktif ? "Nonaktifkan" : "Aktifkan"}
-                            className="p-2 rounded-lg text-muted-foreground hover:text-warning hover:bg-warning/10 transition-all"
+                            className={`p-2 rounded-lg transition-all ${
+                              poli.aktif
+                                ? "text-muted-foreground hover:text-yellow-600 hover:bg-yellow-50"
+                                : "text-muted-foreground hover:text-success hover:bg-success/10"
+                            }`}
                           >
                             {poli.aktif ? (
                               <PowerOff size={16} />

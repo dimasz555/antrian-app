@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import dynamic from "next/dynamic";
 
 type Props = {
@@ -8,12 +8,10 @@ type Props = {
   namaUser: string;
 };
 
-// Skeleton loader minimalis agar sesuai dengan tinggi elemen header
 const ClockSkeleton = () => (
   <div className="w-60 bg-accent/50 animate-pulse rounded-md hidden md:block" />
 );
 
-// Import LiveClock secara dinamis untuk menghindari hydration error
 const LiveClock = dynamic(() => import("@/components/common/LiveClock"), {
   ssr: false,
   loading: () => <ClockSkeleton />,
@@ -33,11 +31,6 @@ export default function AppHeader({ title, namaUser }: Props) {
         <div className="flex shrink-0">
           <LiveClock />
         </div>
-
-        <button className="p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground relative">
-          <Bell size={20} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-destructive" />
-        </button>
 
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border">
           <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-xs">

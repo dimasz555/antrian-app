@@ -66,9 +66,9 @@ export async function updatePoli(id: number, data: PoliInput) {
     });
 
     revalidatePath("/admin/poli");
-    return { success: true, message: "Poli berhasil diperbaharui" };
+    return { success: true, message: "Poli berhasil diperbarui" };
   } catch {
-    return { success: false, message: "Gagal memperbaharui poli" };
+    return { success: false, message: "Gagal memperbarui poli" };
   }
 }
 
