@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Stethoscope,
@@ -78,6 +78,12 @@ export default function AppSidebar({ role, namaUser }: Props) {
   const pathname = usePathname();
   const navItems = role === "ADMIN" ? ADMIN_NAV : PETUGAS_NAV;
 
+  const router = useRouter();
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 bg-muted/40 border-r border-border fixed left-0 top-0 z-50">
       <div className="px-6 py-6 border-b border-border">
@@ -122,7 +128,10 @@ export default function AppSidebar({ role, namaUser }: Props) {
       </nav>
 
       <div className="border-t border-border px-3 py-3">
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all">
+        <button
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
+          onClick={handleLogout}
+        >
           <LogOut size={18} />
           Keluar
         </button>

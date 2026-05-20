@@ -48,7 +48,7 @@ export default function LoginPage() {
       if (role === "ADMIN") {
         router.push("/admin/poli");
       } else {
-        router.push("/antrian");
+        router.push("/petugas/antrian");
       }
     } catch {
       toast.error("Gagal menghubungi server");

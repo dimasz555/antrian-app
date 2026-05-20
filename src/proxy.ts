@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "./lib/jwt";
 
-const PUBLIC_ROUTES = ["/display", "/api/auth/login"];
+const PUBLIC_ROUTES = ["/display", "/kiosk", "/api/auth/login"];
 
 const AUTH_ROUTES = ["/login"];
 
@@ -16,9 +16,7 @@ export function proxy(request: NextRequest) {
       try {
         const payload = verifyToken(token);
         if (payload.role === "ADMIN") {
-          return NextResponse.redirect(
-            new URL("/admin/poli", request.url),
-          );
+          return NextResponse.redirect(new URL("/admin/poli", request.url));
         } else {
           return NextResponse.redirect(new URL("/poli/antrian", request.url));
         }
