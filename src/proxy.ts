@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "./lib/jwt";
 
-const PUBLIC_ROUTES = ["/display", "/kiosk", "/api/auth/login"];
+const PUBLIC_ROUTES = ["/display", "/kiosk", "/api/auth/login", "/api/antrian/stream"];
 
 const AUTH_ROUTES = ["/login"];
 

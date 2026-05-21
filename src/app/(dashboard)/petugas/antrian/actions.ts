@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
+import {
+  broadcastToAll,
+  broadcastToPoliId,
+} from "@/lib/sse-clients";
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -56,6 +60,16 @@ export async function panggilBerikutnya(poliId: number) {
       include: { poli: { select: { nama: true } } },
     });
 
+    broadcastToPoliId(String(poliId), {
+      type: "antrian_dipanggil",
+      kodeAntrian: updated.kodeAntrian,
+      poliId,
+    });
+    broadcastToAll({
+      type: "antrian_update",
+      poliId,
+    });
+
     revalidatePath("/petugas/antrian");
     return {
       success: true,
@@ -90,13 +104,16 @@ export async function panggilUlang(antrianId: number) {
 // SELESAIKAN ANTRIAN
 export async function selesaikanAntrian(antrianId: number) {
   try {
-    await prisma.antrian.update({
+    const updated = await prisma.antrian.update({
       where: { id: antrianId },
       data: {
         status: "SELESAI",
         selesaiAt: new Date(),
       },
     });
+
+    broadcastToPoliId(String(updated.poliId), { type: "antrian_selesai", poliId: updated.poliId });
+    broadcastToAll({ type: "antrian_update", poliId: updated.poliId });
 
     revalidatePath("/petugas/antrian");
     return { success: true, message: "Antrian diselesaikan" };
@@ -108,10 +125,13 @@ export async function selesaikanAntrian(antrianId: number) {
 // LEWATI ANTRIAN
 export async function lewatiAntrian(antrianId: number) {
   try {
-    await prisma.antrian.update({
+    const updated = await prisma.antrian.update({
       where: { id: antrianId },
       data: { status: "TERLEWAT" },
     });
+
+    broadcastToPoliId(String(updated.poliId), { type: "antrian_terlewat", poliId: updated.poliId });
+    broadcastToAll({ type: "antrian_update", poliId: updated.poliId });
 
     revalidatePath("/petugas/antrian");
     return { success: true, message: "Antrian dilewati" };
@@ -134,6 +154,9 @@ export async function resetAntrianManual(poliId: number) {
       },
       data: { status: "TERLEWAT" },
     });
+
+    broadcastToPoliId(String(poliId), { type: "antrian_reset", poliId });
+    broadcastToAll({ type: "antrian_update", poliId });
 
     revalidatePath("/petugas/antrian");
     return { success: true, message: "Antrian berhasil direset" };

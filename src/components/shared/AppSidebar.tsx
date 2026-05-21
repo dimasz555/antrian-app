@@ -9,7 +9,6 @@ import {
   BarChart2,
   Settings,
   LogOut,
-  PlusCircle,
   ClipboardList,
   UserCircle,
 } from "lucide-react";
@@ -115,16 +114,6 @@ export default function AppSidebar({ role, namaUser }: Props) {
             </Link>
           );
         })}
-
-        {/* Tombol aksi utama */}
-        {role === "PETUGAS_POLI" && (
-          <div className="mt-4 px-1">
-            <button className="w-full bg-primary text-primary-foreground py-2.5 px-4 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all shadow-sm">
-              <PlusCircle size={18} />
-              Panggil Antrian
-            </button>
-          </div>
-        )}
       </nav>
 
       <div className="border-t border-border px-3 py-3">

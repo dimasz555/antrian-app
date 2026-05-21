@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Stethoscope, Printer, X } from "lucide-react";
+import LiveClock from "@/components/common/LiveClock";
 import { generateAntrian } from "../actions";
+import { useRouter } from "next/navigation";
+import { useSSE } from "@/hooks/useSSE";
 
 type Poli = {
   id: number;
@@ -24,9 +27,19 @@ type Props = {
 };
 
 export default function KioskPilihClient({ poliList, config }: Props) {
+  const router = useRouter();
   const [selectedPoli, setSelectedPoli] = useState<Poli | null>(null);
   const [tiket, setTiket] = useState<TiketData | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useSSE({
+    poliId: "all",
+    onMessage: (event) => {
+      if (event.type === "antrian_baru" || event.type === "antrian_update") {
+        router.refresh();
+      }
+    },
+  });
 
   const handlePilihPoli = (poli: Poli) => {
     if (selectedPoli?.id === poli.id) {
@@ -77,13 +90,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
             {config.JAM_TUTUP ?? "16:00"} WIB
           </p>
         </div>
-        <div className="text-background text-sm font-medium">
-          {new Date().toLocaleDateString("id-ID", {
-            weekday: "long",
-            day: "numeric",
-            month: "long",
-          })}
-        </div>
+        <LiveClock variant="kiosk" />
       </header>
 
       {/* Konten */}
@@ -116,20 +123,20 @@ export default function KioskPilihClient({ poliList, config }: Props) {
                 >
                   <Stethoscope
                     size={24}
-                    className={isSelected ? "text-white" : "text-primary"}
+                    className={isSelected ? "text-background" : "text-primary"}
                   />
                 </div>
                 <div>
                   <p
                     className={`font-bold text-2xl leading-none mb-1 ${
-                      isSelected ? "text-white" : "text-primary"
+                      isSelected ? "text-background" : "text-primary"
                     }`}
                   >
                     {poli.kode}
                   </p>
                   <p
                     className={`text-xs font-medium leading-tight ${
-                      isSelected ? "text-white/80" : "text-foreground"
+                      isSelected ? "text-accent" : "text-foreground"
                     }`}
                   >
                     {poli.nama}
@@ -233,7 +240,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
       )}
 
       {/* Print styles */}
-      <style jsx global>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         @media print {
           body > *:not(#tiket-print) {
             display: none !important;
@@ -246,7 +253,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
             padding: 10mm;
           }
         }
-      `}</style>
+      `}} />
     </div>
   );
 }

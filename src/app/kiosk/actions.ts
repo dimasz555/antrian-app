@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { broadcastToAll } from "@/lib/sse-clients";
 
 // VERIFY PIN
 export async function verifyKioskPin(pin: string) {
@@ -70,6 +71,12 @@ export async function generateAntrian(poliId: number) {
       include: {
         poli: { select: { nama: true, kode: true } },
       },
+    });
+
+    broadcastToAll({
+      type: "antrian_baru",
+      poliId,
+      kodeAntrian: antrian.kodeAntrian,
     });
 
     return {

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition} from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   ChevronRight,
@@ -20,6 +21,7 @@ import {
   lewatiAntrian,
   resetAntrianManual,
 } from "./actions";
+import { useSSE } from "@/hooks/useSSE";
 
 type Antrian = {
   id: number;
@@ -80,10 +82,26 @@ const STATUS_CONFIG = {
 };
 
 export default function AntrianClient({ poli, antrianList }: Props) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
+  // Subscribe SSE
+  useSSE({
+    poliId: poli.id,
+    onMessage: (event) => {
+      if (
+        event.type === "antrian_baru" ||
+        event.type === "antrian_dipanggil" ||
+        event.type === "antrian_selesai" ||
+        event.type === "antrian_terlewat" ||
+        event.type === "antrian_reset"
+      ) {
+        router.refresh();
+      }
+    },
+  });
   // Derived state
   const sedangDipanggil = antrianList.find((a) => a.status === "DIPANGGIL");
   const menunggu = antrianList.filter((a) => a.status === "MENUNGGU");
@@ -157,6 +175,14 @@ export default function AntrianClient({ poli, antrianList }: Props) {
     } finally {
       setResetLoading(false);
     }
+  };
+
+  const formatTime = (date: Date | null) => {
+    if (!date) return "–";
+    const completedAt = new Date(date);
+    const hours = completedAt.getHours().toString().padStart(2, "0");
+    const minutes = completedAt.getMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
   };
 
   return (
@@ -344,12 +370,7 @@ export default function AntrianClient({ poli, antrianList }: Props) {
                       {a.kodeAntrian}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {a.selesaiAt
-                        ? new Date(a.selesaiAt).toLocaleTimeString("id-ID", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "–"}
+                      {formatTime(a.selesaiAt ? new Date(a.selesaiAt) : null)}
                     </span>
                   </div>
                 ))
