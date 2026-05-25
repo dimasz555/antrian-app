@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  nama      String
+  username  String
+  password  String
+  role      RoleUser
+  aktif     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  poliId       Int?
+  poli         Poli?          @relation("PetugasPoli", fields: [poliId], references: [id])
+  antrian      Antrian[]      @relation("PanggilAntrian")
+  logAktivitas LogAktivitas[]
+
+  @@unique([username, deletedAt])
+  @@map("user")
+}
+
+model Poli {
+  id        Int       @id @default(autoincrement())
+  kode      String
+  nama      String
+  aktif     Boolean   @default(true)
+  urutan    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  antrian Antrian[]
+  petugas User[]    @relation("PetugasPoli")
+
+  @@unique([kode, deletedAt])
+  @@map("poli")
+}
+
+model Antrian {
+  id            Int           @id @default(autoincrement())
+  kodeAntrian   String
+  nomorUrut     Int
+  status        StatusAntrian @default(MENUNGGU)
+  tanggal       DateTime      @default(now())
+  jumlahPanggil Int           @default(1)
+
+  createdAt   DateTime  @default(now())
+  dipanggilAt DateTime?
+  selesaiAt   DateTime?
+
+  poliId Int
+  poli   Poli @relation(fields: [poliId], references: [id])
+
+  dipanggilOlehId String?
+  dipanggilOleh   User?   @relation("PanggilAntrian", fields: [dipanggilOlehId], references: [id])
+
+  @@index([poliId])
+  @@index([status])
+  @@index([tanggal])
+  @@map("antrian")
+}
+
+model Konfigurasi {
+  id        Int      @id @default(autoincrement())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("konfigurasi")
+}
+
+model LogAktivitas {
+  id         Int      @id @default(autoincrement())
+  aksi       String
+  keterangan String?
+  userId     String
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("log_aktivitas")
+}
+
+enum StatusAntrian {
+  MENUNGGU
+  DIPANGGIL
+  SELESAI
+  TERLEWAT
+}
+
+enum RoleUser {
+  ADMIN
+  PETUGAS_POLI
+}

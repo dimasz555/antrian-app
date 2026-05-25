@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main>
       <h1 className="text-2xl font-semibold text-destructive">
-        Sistem Antrian Puskesmas
+        Sistem Antrean Puskesmas
       </h1>
     </main>
   );
