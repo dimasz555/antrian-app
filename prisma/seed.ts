@@ -8,27 +8,30 @@ async function main() {
   });
   const prisma = new PrismaClient({ adapter });
 
-  // Hash password
   const hashedPassword = await bcrypt.hash("admin123", 10);
 
-  // Buat atau update akun admin
-  const admin = await prisma.user.upsert({
-    where: { username: "admin" },
-    update: {},
-    create: {
-      nama: "Administrator",
+  const existing = await prisma.user.findFirst({
+    where: {
       username: "admin",
-      password: hashedPassword,
-      role: "ADMIN",
-      aktif: true,
+      deletedAt: null,
     },
   });
 
-  console.log("✅ Akun admin berhasil dibuat:");
-  console.log(`   Nama     : ${admin.nama}`);
-  console.log(`   Username : ${admin.username}`);
-  console.log(`   Password : admin123`);
-  console.log(`   Role     : ${admin.role}`);
+  if (existing) {
+    console.log("ℹ️  Akun admin sudah ada, seed dilewati.");
+    console.log(`   Username : ${existing.username}`);
+    console.log(`   Role     : ${existing.role}`);
+  } else {
+    const admin = await prisma.user.create({
+      data: {
+        nama: "Administrator",
+        username: "admin",
+        password: hashedPassword,
+        role: "ADMIN",
+        aktif: true,
+      },
+    });
+  }
 
   await prisma.$disconnect();
 }
