@@ -49,28 +49,32 @@ export async function generateAntrian(poliId: number) {
       return { success: false, message: "Poli tidak ditemukan" };
     }
 
-    // Hitung nomor urut hari ini
-    const totalHariIni = await prisma.antrian.count({
-      where: {
-        poliId,
-        tanggal: { gte: start, lte: end },
-      },
-    });
+    // create antrian
+    const antrian = await prisma.$transaction(async (tx) => {
+      const lastAntrian = await tx.antrian.findFirst({
+        where: {
+          poliId,
+          tanggal: { gte: start, lte: end },
+        },
+        orderBy: { nomorUrut: "desc" },
+        select: { nomorUrut: true },
+      });
 
-    const nomorUrut = totalHariIni + 1;
-    const kodeAntrian = `${poli.kode}-${String(nomorUrut).padStart(3, "0")}`;
+      const nomorUrut = (lastAntrian?.nomorUrut ?? 0) + 1;
+      const kodeAntrian = `${poli.kode}-${String(nomorUrut).padStart(3, "0")}`;
 
-    const antrian = await prisma.antrian.create({
-      data: {
-        kodeAntrian,
-        nomorUrut,
-        poliId,
-        status: "MENUNGGU",
-        tanggal: today,
-      },
-      include: {
-        poli: { select: { nama: true, kode: true } },
-      },
+      return tx.antrian.create({
+        data: {
+          kodeAntrian,
+          nomorUrut,
+          poliId,
+          status: "MENUNGGU",
+          tanggal: today,
+        },
+        include: {
+          poli: { select: { nama: true, kode: true } },
+        },
+      });
     });
 
     broadcastToAll({
@@ -81,7 +85,7 @@ export async function generateAntrian(poliId: number) {
 
     return {
       success: true,
-      message: "Antrian berhasil dibuat",
+      message: "Antrean berhasil dibuat",
       data: {
         id: antrian.id,
         kodeAntrian: antrian.kodeAntrian,
@@ -92,7 +96,7 @@ export async function generateAntrian(poliId: number) {
       },
     };
   } catch {
-    return { success: false, message: "Gagal membuat antrian" };
+    return { success: false, message: "Gagal membuat antrean" };
   }
 }
 
@@ -122,7 +126,7 @@ export async function getKioskData() {
       },
     }),
     prisma.konfigurasi.findMany({
-      where: { key: { in: ["NAMA_RS", "JAM_BUKA", "JAM_TUTUP"] } },
+      where: { key: { in: ["NAMA_RS", "JAM_BUKA", "JAM_TUTUP", "LOGO_RS"] } },
     }),
   ]);
 

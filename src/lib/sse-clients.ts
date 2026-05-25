@@ -12,15 +12,31 @@ export const sseClients: SSEClients =
 
 // Helper: kirim event ke semua client yang subscribe poli tertentu
 export function broadcastToPoliId(poliId: string, data: unknown) {
-  const poliClients = sseClients.get(poliId);
-  if (!poliClients) return;
-
   const message = `data: ${JSON.stringify(data)}\n\n`;
-  for (const controller of poliClients) {
-    try {
-      controller.enqueue(new TextEncoder().encode(message));
-    } catch {
-      poliClients.delete(controller);
+
+  // 1. Kirim ke client yang subscribe poliId tersebut
+  const poliClients = sseClients.get(poliId);
+  if (poliClients) {
+    for (const controller of poliClients) {
+      try {
+        controller.enqueue(new TextEncoder().encode(message));
+      } catch {
+        poliClients.delete(controller);
+      }
+    }
+  }
+
+  // 2. Kirim ke client "all"
+  if (poliId !== "all") {
+    const allClients = sseClients.get("all");
+    if (allClients) {
+      for (const controller of allClients) {
+        try {
+          controller.enqueue(new TextEncoder().encode(message));
+        } catch {
+          allClients.delete(controller);
+        }
+      }
     }
   }
 }

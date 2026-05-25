@@ -3,18 +3,16 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   Stethoscope,
   Users,
-  BarChart2,
   Settings,
   LogOut,
   ClipboardList,
   UserCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import AppLogo from "../common/AppLogo";
 
-// ── Tipe navigasi ──────────────────────────────────────
 type NavItem = {
   label: string;
   href: string;
@@ -22,11 +20,11 @@ type NavItem = {
 };
 
 const ADMIN_NAV: NavItem[] = [
-  {
-    label: "Dashboard",
-    href: "/admin/dashboard",
-    icon: <LayoutDashboard size={20} />,
-  },
+  // {
+  //   label: "Dashboard",
+  //   href: "/admin/dashboard",
+  //   icon: <LayoutDashboard size={20} />,
+  // },
   {
     label: "Kelola Poli",
     href: "/admin/poli",
@@ -37,7 +35,7 @@ const ADMIN_NAV: NavItem[] = [
     href: "/admin/petugas",
     icon: <Users size={20} />,
   },
-  { label: "Laporan", href: "/admin/laporan", icon: <BarChart2 size={20} /> },
+
   {
     label: "Profil Saya",
     href: "/admin/profil",
@@ -52,7 +50,7 @@ const ADMIN_NAV: NavItem[] = [
 
 const PETUGAS_NAV: NavItem[] = [
   {
-    label: "Antrian Saya",
+    label: "Antrean Poli",
     href: "/petugas/antrian",
     icon: <ClipboardList size={20} />,
   },
@@ -71,9 +69,11 @@ const PETUGAS_NAV: NavItem[] = [
 type Props = {
   role: "ADMIN" | "PETUGAS_POLI";
   namaUser: string;
+  namaRS: string;
+  logoRS?: string;
 };
 
-export default function AppSidebar({ role, namaUser }: Props) {
+export default function AppSidebar({ role, namaUser, namaRS, logoRS }: Props) {
   const pathname = usePathname();
   const navItems = role === "ADMIN" ? ADMIN_NAV : PETUGAS_NAV;
 
@@ -85,16 +85,18 @@ export default function AppSidebar({ role, namaUser }: Props) {
 
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 bg-muted/40 border-r border-border fixed left-0 top-0 z-50">
-      <div className="px-6 py-6 border-b border-border">
-        <h1 className="text-lg font-bold text-primary leading-tight">
-          Puskesmas Digital
-        </h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Sistem Informasi Antrian
-        </p>
+      <div className="px-6 py-6 border-b border-border flex items-center gap-3">
+        <AppLogo logoBase64={logoRS} size={36} />
+        <div>
+          <h1 className="text-sm font-bold text-primary leading-tight">
+            {namaRS}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Sistem Informasi Antrian
+          </p>
+        </div>
       </div>
 
-      {/* Nav items */}
       <nav className="flex-1 flex flex-col gap-1 px-3 py-4 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);

@@ -3,6 +3,7 @@ import { Poppins } from "next/font/google";
 
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { prisma } from "@/lib/prisma";
 
 const Font = Poppins({
   subsets: ["latin"],
@@ -10,11 +11,23 @@ const Font = Poppins({
   weight: ["400", "500", "700"],
 });
 
-export const metadata: Metadata = {
-  title: "Sistem Informasi Manajemen Antrian",
-  description: "Sistem Informasi Manajemen Antrian",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const config = await prisma.konfigurasi.findMany({
+    where: { key: { in: ["NAMA_RS", "LOGO_RS"] } },
+  });
 
+  const namaRS =
+    config.find((c) => c.key === "NAMA_RS")?.value ?? "Sistem Antrian";
+  const logoRS = config.find((c) => c.key === "LOGO_RS")?.value ?? "";
+
+  return {
+    title: namaRS,
+    description: `Sistem Informasi Antrian — ${namaRS}`,
+    icons: logoRS
+      ? { icon: logoRS }
+      : undefined,
+  };
+}
 export default function RootLayout({
   children,
 }: Readonly<{

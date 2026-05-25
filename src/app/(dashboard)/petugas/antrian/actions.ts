@@ -29,11 +29,11 @@ export async function panggilBerikutnya(poliId: number) {
     if (sedangDipanggil) {
       return {
         success: false,
-        message: "Selesaikan atau lewati antrian yang sedang dipanggil dulu",
+        message: "Selesaikan atau lewati antrean yang sedang dipanggil dulu",
       };
     }
 
-    // Ambil antrian berikutnya
+    // Ambil antrean berikutnya
     const berikutnya = await prisma.antrian.findFirst({
       where: {
         poliId,
@@ -47,7 +47,7 @@ export async function panggilBerikutnya(poliId: number) {
     });
 
     if (!berikutnya) {
-      return { success: false, message: "Tidak ada antrian yang menunggu" };
+      return { success: false, message: "Tidak ada antrean yang menunggu" };
     }
 
     const updated = await prisma.antrian.update({
@@ -73,11 +73,11 @@ export async function panggilBerikutnya(poliId: number) {
     revalidatePath("/petugas/antrian");
     return {
       success: true,
-      message: "Antrian berhasil dipanggil",
+      message: "Antrean berhasil dipanggil",
       data: updated,
     };
   } catch {
-    return { success: false, message: "Gagal memanggil antrian" };
+    return { success: false, message: "Gagal memanggil antrean" };
   }
 }
 
@@ -90,14 +90,24 @@ export async function panggilUlang(antrianId: number) {
       include: { poli: { select: { nama: true } } },
     });
 
+    broadcastToPoliId(String(updated.poliId), {
+      type: "antrian_dipanggil",
+      kodeAntrian: updated.kodeAntrian,
+      poliId: updated.poliId,
+    });
+    broadcastToAll({
+      type: "antrian_update",
+      poliId: updated.poliId,
+    });
+
     revalidatePath("/petugas/antrian");
     return {
       success: true,
-      message: "Antrian dipanggil ulang",
+      message: "Antrean dipanggil ulang",
       data: updated,
     };
   } catch {
-    return { success: false, message: "Gagal memanggil ulang antrian" };
+    return { success: false, message: "Gagal memanggil ulang antrean" };
   }
 }
 
@@ -116,9 +126,9 @@ export async function selesaikanAntrian(antrianId: number) {
     broadcastToAll({ type: "antrian_update", poliId: updated.poliId });
 
     revalidatePath("/petugas/antrian");
-    return { success: true, message: "Antrian diselesaikan" };
+    return { success: true, message: "Antrean diselesaikan" };
   } catch {
-    return { success: false, message: "Gagal menyelesaikan antrian" };
+    return { success: false, message: "Gagal menyelesaikan antrean" };
   }
 }
 
@@ -134,9 +144,9 @@ export async function lewatiAntrian(antrianId: number) {
     broadcastToAll({ type: "antrian_update", poliId: updated.poliId });
 
     revalidatePath("/petugas/antrian");
-    return { success: true, message: "Antrian dilewati" };
+    return { success: true, message: "Antrean dilewati" };
   } catch {
-    return { success: false, message: "Gagal melewati antrian" };
+    return { success: false, message: "Gagal melewati antrean" };
   }
 }
 
@@ -159,9 +169,9 @@ export async function resetAntrianManual(poliId: number) {
     broadcastToAll({ type: "antrian_update", poliId });
 
     revalidatePath("/petugas/antrian");
-    return { success: true, message: "Antrian berhasil direset" };
+    return { success: true, message: "Antrean berhasil direset" };
   } catch {
-    return { success: false, message: "Gagal mereset antrian" };
+    return { success: false, message: "Gagal mereset antrean" };
   }
 }
 

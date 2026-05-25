@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AppFooter from "@/components/shared/AppFooter";
 
 export const metadata: Metadata = {
-  title: "Masuk — Sistem Informasi Manajemen Antrian",
+  title: "Masuk — Sistem Informasi Manajemen Antrean",
   description: "Login petugas dan admin sistem antrian",
 };
 
@@ -15,8 +15,8 @@ export default function LoginLayout({
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-background">
       {/* ── Layer 1: Orbs ── */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-20 w-[600px] h-[600px] rounded-full bg-primary/10 blur-[120px]" />
-        <div className="absolute bottom-0 -right-20 w-[500px] h-[500px] rounded-full bg-secondary/10 blur-[100px]" />
+        <div className="absolute top-0 -left-20 w-150 h-150 rounded-full bg-primary/10 blur-[120px]" />
+        <div className="absolute bottom-0 -right-20 w-125 h-125 rounded-full bg-secondary/10 blur-[100px]" />
         <div className="absolute top-1/3 left-1/4 w-96 h-96 rounded-full bg-accent/10 blur-[100px]" />
       </div>
       {/* ── Layer 2: Wave SVG ── */}
@@ -25,7 +25,7 @@ export default function LoginLayout({
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1440 560"
           preserveAspectRatio="none"
-          className="w-full h-[560px]"
+          className="w-full h-140"
         >
 
           <path

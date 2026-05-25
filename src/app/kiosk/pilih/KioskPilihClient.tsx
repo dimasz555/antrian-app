@@ -7,6 +7,7 @@ import LiveClock from "@/components/common/LiveClock";
 import { generateAntrian } from "../actions";
 import { useRouter } from "next/navigation";
 import { useSSE } from "@/hooks/useSSE";
+import AppLogo from "@/components/common/AppLogo";
 
 type Poli = {
   id: number;
@@ -31,6 +32,9 @@ export default function KioskPilihClient({ poliList, config }: Props) {
   const [selectedPoli, setSelectedPoli] = useState<Poli | null>(null);
   const [tiket, setTiket] = useState<TiketData | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const logoRS = config.LOGO_RS ?? "";
+  const namaRS = config.NAMA_RS ?? "Sistem Antrian";
 
   useSSE({
     poliId: "all",
@@ -79,30 +83,32 @@ export default function KioskPilihClient({ poliList, config }: Props) {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {/* Header */}
       <header className="bg-primary px-6 py-4 flex items-center justify-between shrink-0">
-        <div>
-          <h1 className="text-background font-bold text-lg leading-tight">
-            {config.NAMA_RS ?? "Sistem Antrian"}
-          </h1>
-          <p className="text-accent text-xs mt-0.5">
-            Jam Layanan: {config.JAM_BUKA ?? "07:00"} –{" "}
-            {config.JAM_TUTUP ?? "16:00"} WIB
-          </p>
+        <div className="flex gap-2">
+          <AppLogo logoBase64={logoRS} namaRS={namaRS} size={40} />
+          <div className="flex flex-col">
+            <h1 className="text-background font-bold text-lg leading-tight">
+              {namaRS}
+            </h1>
+            <p className="text-accent text-xs mt-0.5">
+              Jam Layanan: {config.JAM_BUKA ?? "07:00"} –{" "}
+              {config.JAM_TUTUP ?? "16:00"} WIB
+            </p>
+          </div>
         </div>
         <LiveClock variant="kiosk" />
       </header>
 
-      {/* Konten */}
       <main className="flex-1 p-6">
         <div className="text-center mb-6">
-          <h2 className="text-xl font-bold text-foreground">Daftar Poli</h2>
+          <h2 className="text-4xl font-bold text-foreground">
+            Pilih Layanan Poli
+          </h2>
           <p className="text-muted-foreground text-sm mt-1">
-            Pilih poli yang ingin Anda kunjungi
+            Sentuh salah satu kotak di bawah untuk mengambil nomor antrean
           </p>
         </div>
 
-        {/* Grid poli */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
           {poliList.map((poli) => {
             const isSelected = selectedPoli?.id === poli.id;
@@ -128,14 +134,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
                 </div>
                 <div>
                   <p
-                    className={`font-bold text-2xl leading-none mb-1 ${
-                      isSelected ? "text-background" : "text-primary"
-                    }`}
-                  >
-                    {poli.kode}
-                  </p>
-                  <p
-                    className={`text-xs font-medium leading-tight ${
+                    className={`text-lg font-bold leading-tight ${
                       isSelected ? "text-accent" : "text-foreground"
                     }`}
                   >
@@ -147,7 +146,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
                     isSelected ? "text-white/70" : "text-muted-foreground"
                   }`}
                 >
-                  {poli._count.antrian} menunggu
+                  Jumlah Antrean: {poli._count.antrian}
                 </p>
               </button>
             );
@@ -165,7 +164,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
             <p className="text-xs text-muted-foreground">Poli dipilih:</p>
             <p className="font-bold text-foreground">{selectedPoli?.nama}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              {selectedPoli?._count.antrian} antrian menunggu
+              {selectedPoli?._count.antrian} antrean menunggu
             </p>
           </div>
           <button
@@ -179,7 +178,7 @@ export default function KioskPilihClient({ poliList, config }: Props) {
             disabled={loading}
             className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
           >
-            {loading ? "Memproses..." : "Ambil Antrian"}
+            {loading ? "Memproses..." : "Ambil Antrean"}
           </button>
         </div>
       </div>
@@ -187,15 +186,13 @@ export default function KioskPilihClient({ poliList, config }: Props) {
       {tiket && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-6">
           <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
-            {/* Header tiket */}
             <div className="bg-primary px-6 py-5 text-center">
               <p className="text-white/80 text-xs font-medium uppercase tracking-widest mb-1">
-                {config.NAMA_RS ?? "Sistem Antrian"}
+                {namaRS}
               </p>
-              <p className="text-white/70 text-xs">Nomor Antrian Anda</p>
+              <p className="text-white/70 text-xs">Nomor Antrean Anda</p>
             </div>
 
-            {/* Isi tiket */}
             <div className="px-6 py-8 text-center" id="tiket-print">
               <p
                 className="font-extrabold text-primary leading-none mb-4"
@@ -239,8 +236,9 @@ export default function KioskPilihClient({ poliList, config }: Props) {
         </div>
       )}
 
-      {/* Print styles */}
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
         @media print {
           body > *:not(#tiket-print) {
             display: none !important;
@@ -253,7 +251,9 @@ export default function KioskPilihClient({ poliList, config }: Props) {
             padding: 10mm;
           }
         }
-      `}} />
+      `,
+        }}
+      />
     </div>
   );
 }

@@ -39,13 +39,13 @@ export default async function PetugasAntrianPage() {
     redirect("/login?reason=expired");
   }
 
-  // Pastikan petugas punya poli
+  // validasi petugas  poli
   if (!payload.poliId) {
     return (
       <div className="flex flex-col gap-6">
         <PageHeader
-          title="Antrian Saya"
-          description="Kelola antrian poli Anda."
+          title="Antrean Saya"
+          description="Kelola antrean poli Anda."
         />
         <div className="bg-card border border-border rounded-xl p-10 text-center">
           <p className="text-muted-foreground">
@@ -63,8 +63,8 @@ export default async function PetugasAntrianPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title={`Antrian — ${poli.nama}`}
-        description={`Kode Poli: ${poli.kode} • Kelola antrian pasien hari ini.`}
+        title={`Antrean — ${poli.nama}`}
+        description={`Kode Poli: ${poli.kode} • Kelola antrean pasien hari ini.`}
       />
       <AntrianClient poli={poli} antrianList={antrian} />
     </div>

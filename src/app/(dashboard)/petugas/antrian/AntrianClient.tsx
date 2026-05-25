@@ -45,23 +45,6 @@ type Props = {
   antrianList: Antrian[];
 };
 
-// ── TTS Helper ────────────────────────────────────────
-function speakAntrian(kodeAntrian: string, namaPoli: string) {
-  if (typeof window === "undefined") return;
-  if (!window.speechSynthesis) return;
-
-  window.speechSynthesis.cancel();
-
-  const kodeSpelled = kodeAntrian.replace("-", " ");
-  const utterance = new SpeechSynthesisUtterance(
-    `Nomor antrian ${kodeSpelled}, silakan menuju ${namaPoli}`,
-  );
-  utterance.lang = "id-ID";
-  utterance.rate = 0.85;
-  utterance.volume = 1;
-  window.speechSynthesis.speak(utterance);
-}
-
 const STATUS_CONFIG = {
   MENUNGGU: {
     label: "Menunggu",
@@ -108,16 +91,13 @@ export default function AntrianClient({ poli, antrianList }: Props) {
   const selesai = antrianList.filter((a) => a.status === "SELESAI");
   const terlewat = antrianList.filter((a) => a.status === "TERLEWAT");
 
-  // ── Handlers ─────────────────────────────────────────
+  // Handlers
   const handlePanggilBerikutnya = () => {
     startTransition(async () => {
       const result = await panggilBerikutnya(poli.id);
       if (!result.success) {
         toast.error(result.message);
         return;
-      }
-      if (result.data) {
-        speakAntrian(result.data.kodeAntrian, poli.nama);
       }
       toast.success(result.message);
     });
@@ -130,9 +110,6 @@ export default function AntrianClient({ poli, antrianList }: Props) {
       if (!result.success) {
         toast.error(result.message);
         return;
-      }
-      if (result.data) {
-        speakAntrian(result.data.kodeAntrian, poli.nama);
       }
       toast.success(result.message);
     });
@@ -188,9 +165,7 @@ export default function AntrianClient({ poli, antrianList }: Props) {
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* KOLOM KIRI — Dipanggil + Aksi */}
         <div className="flex flex-col gap-4">
-          {/* Card sedang dipanggil */}
           <div
             className={`rounded-2xl p-6 flex flex-col items-center text-center border-2 ${
               sedangDipanggil
@@ -224,7 +199,6 @@ export default function AntrianClient({ poli, antrianList }: Props) {
             )}
           </div>
 
-          {/* Tombol aksi */}
           <div className="flex flex-col gap-2">
             {sedangDipanggil ? (
               <>
@@ -268,7 +242,6 @@ export default function AntrianClient({ poli, antrianList }: Props) {
             )}
           </div>
 
-          {/* Statistik hari ini */}
           <div className="bg-card border border-border rounded-xl p-4 flex flex-col gap-3">
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
               Statistik Hari Ini
@@ -295,20 +268,17 @@ export default function AntrianClient({ poli, antrianList }: Props) {
             </div>
           </div>
 
-          {/* Reset manual */}
           <Button
             variant="outline"
             onClick={() => setResetConfirmOpen(true)}
             className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
           >
             <RefreshCw size={16} />
-            Reset Antrian Hari Ini
+            Reset Antrean Hari Ini
           </Button>
         </div>
 
-        {/* KOLOM KANAN — Daftar antrian */}
         <div className="lg:col-span-2 flex flex-col gap-4">
-          {/* Antrian menunggu */}
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="px-5 py-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -318,13 +288,13 @@ export default function AntrianClient({ poli, antrianList }: Props) {
                 </p>
               </div>
               <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-semibold">
-                {menunggu.length} antrian
+                {menunggu.length} antrean
               </span>
             </div>
             <div className="divide-y divide-border max-h-64 overflow-y-auto">
               {menunggu.length === 0 ? (
                 <p className="text-center text-muted-foreground text-sm py-8">
-                  Tidak ada antrian menunggu
+                  Tidak ada antrean menunggu
                 </p>
               ) : (
                 menunggu.map((a) => (
@@ -344,7 +314,6 @@ export default function AntrianClient({ poli, antrianList }: Props) {
             </div>
           </div>
 
-          {/* Antrian selesai */}
           <div className="bg-card border border-border rounded-xl overflow-hidden">
             <div className="px-5 py-3 border-b border-border flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -352,13 +321,13 @@ export default function AntrianClient({ poli, antrianList }: Props) {
                 <p className="font-semibold text-sm text-foreground">Selesai</p>
               </div>
               <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
-                {selesai.length} antrian
+                {selesai.length} antrean
               </span>
             </div>
             <div className="divide-y divide-border max-h-48 overflow-y-auto">
               {selesai.length === 0 ? (
                 <p className="text-center text-muted-foreground text-sm py-6">
-                  Belum ada antrian selesai
+                  Belum ada antrean selesai
                 </p>
               ) : (
                 selesai.map((a) => (
@@ -378,7 +347,6 @@ export default function AntrianClient({ poli, antrianList }: Props) {
             </div>
           </div>
 
-          {/* Antrian terlewat */}
           {terlewat.length > 0 && (
             <div className="bg-card border border-border rounded-xl overflow-hidden">
               <div className="px-5 py-3 border-b border-border flex items-center justify-between">
@@ -410,14 +378,13 @@ export default function AntrianClient({ poli, antrianList }: Props) {
         </div>
       </div>
 
-      {/* Konfirmasi reset */}
       <ConfirmDialog
         open={resetConfirmOpen}
         onClose={() => setResetConfirmOpen(false)}
         onConfirm={handleReset}
         loading={resetLoading}
-        title="Reset Antrian"
-        description="Semua antrian yang menunggu dan sedang dipanggil akan ditandai sebagai terlewat. Tindakan ini tidak dapat dibatalkan."
+        title="Reset Antrean"
+        description="Semua antrean yang menunggu dan sedang dipanggil akan ditandai sebagai terlewat. Tindakan ini tidak dapat dibatalkan."
         confirmLabel="Reset Sekarang"
         confirmVariant="destructive"
       />

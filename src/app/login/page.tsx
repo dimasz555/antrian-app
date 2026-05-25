@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Notifikasi sesi expired — cukup sekali saat mount
+  // Notif sesion expired
   const reason = searchParams.get("reason");
   if (reason === "expired") {
     toast.warning("Sesi anda telah berakhir, silakan login kembali");
@@ -63,7 +63,7 @@ export default function LoginPage() {
         <h1 className="text-3xl md:text-4xl font-bold text-primary leading-tight tracking-tight">
           SISTEM INFORMASI
           <br />
-          MANAJEMEN ANTRIAN
+          MANAJEMEN ANTREAN
         </h1>
       </div>
 

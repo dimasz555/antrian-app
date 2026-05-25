@@ -140,7 +140,7 @@ function PoliForm({
             <p className="text-xs text-destructive">{errors.kode}</p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Kode unik 1-3 huruf. Contoh: A → antrian A-001
+              Kode unik 1-3 huruf. Contoh: A → antrean A-001
             </p>
           )}
         </div>

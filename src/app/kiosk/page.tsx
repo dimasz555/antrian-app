@@ -49,7 +49,7 @@ export default function KioskPinPage() {
       <div className="w-full max-w-sm flex flex-col items-center gap-8">
         {/* Header */}
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-primary">Sistem Antrian</h1>
+          <h1 className="text-2xl font-bold text-primary">Sistem Antrean</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Masukkan PIN untuk mengakses kiosk
           </p>

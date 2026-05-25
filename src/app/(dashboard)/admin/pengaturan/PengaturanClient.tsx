@@ -1,19 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Save, Building2, Clock, Video, Lock, Tv } from "lucide-react";
+import { Loader2, Save, Building2, Clock, Video, Lock, Tv, ImageIcon, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { upsertKonfigurasi } from "./actions";
+import Image from "next/image";
 
 type Props = {
   config: Record<string, string>;
 };
 
 export default function PengaturanClient({ config }: Props) {
+  const [logoPreview, setLogoPreview] = useState<string>(config.LOGO_RS || "");
+  const [logoLoading, setLogoLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [form, setForm] = useState({
     NAMA_RS: config.NAMA_RS ?? "",
     ALAMAT_RS: config.ALAMAT_RS ?? "",
@@ -28,6 +33,62 @@ export default function PengaturanClient({ config }: Props) {
   });
 
   const [loading, setLoading] = useState(false);
+
+  const handleLogoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validasi ukuran max 500KB
+    if (file.size > 500 * 1024) {
+      toast.error("Ukuran logo maksimal 500KB");
+      return;
+    }
+
+    // Validasi tipe file
+    if (!file.type.startsWith("image/")) {
+      toast.error("File harus berupa gambar");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64 = e.target?.result as string;
+      setLogoPreview(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSimpanLogo = async () => {
+    if (!logoPreview) return;
+    setLogoLoading(true);
+    try {
+      const result = await upsertKonfigurasi([
+        { key: "LOGO_RS", value: logoPreview },
+      ]);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+      toast.success("Logo berhasil disimpan");
+    } finally {
+      setLogoLoading(false);
+    }
+  };
+
+  const handleHapusLogo = async () => {
+    setLogoLoading(true);
+    try {
+      const result = await upsertKonfigurasi([{ key: "LOGO_RS", value: "" }]);
+      if (!result.success) {
+        toast.error(result.message);
+        return;
+      }
+      setLogoPreview("");
+      toast.success("Logo berhasil dihapus");
+    } finally {
+      setLogoLoading(false);
+    }
+  };
 
   const handleChange = (key: keyof typeof form, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -50,7 +111,81 @@ export default function PengaturanClient({ config }: Props) {
 
   return (
     <div className="max-w-8xl flex flex-col gap-6">
-      {/* Section Informasi RS */}
+      <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
+        <div className="flex items-center gap-2">
+          <ImageIcon size={16} className="text-muted-foreground" />
+          <h3 className="font-semibold text-foreground">Logo Fasilitas</h3>
+        </div>
+        <Separator />
+
+        <div className="flex items-center gap-6">
+          <div className="shrink-0">
+            {logoPreview ? (
+              <div className="relative w-20 h-20">
+                <Image
+                  src={logoPreview}
+                  alt="Logo RS"
+                  width={80}
+                  height={80}
+                  className="w-20 h-20 rounded-xl object-contain border border-border bg-muted"
+                />
+                <button
+                  onClick={handleHapusLogo}
+                  className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:opacity-80 transition-opacity"
+                >
+                  <X size={11} />
+                </button>
+              </div>
+            ) : (
+              <div className="w-20 h-20 rounded-xl border-2 border-dashed border-border bg-muted flex items-center justify-center">
+                <ImageIcon size={24} className="text-muted-foreground" />
+              </div>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2 flex-1">
+            <p className="text-sm text-foreground font-medium">
+              {logoPreview ? "Logo aktif" : "Belum ada logo"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Format: PNG, JPG, SVG. Maksimal 500KB. Akan ditampilkan di display
+              TV, kiosk, dan sidebar.
+            </p>
+            <div className="flex gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoChange}
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {logoPreview ? "Ganti Logo" : "Upload Logo"}
+              </Button>
+              {logoPreview && (
+                <Button
+                  size="sm"
+                  onClick={handleSimpanLogo}
+                  disabled={logoLoading}
+                  className="gap-1.5"
+                >
+                  {logoLoading ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : (
+                    <Save size={13} />
+                  )}
+                  Simpan
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Building2 size={16} className="text-muted-foreground" />
@@ -104,7 +239,6 @@ export default function PengaturanClient({ config }: Props) {
         </div>
       </div>
 
-      {/* Section Jam Operasional */}
       <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Clock size={16} className="text-muted-foreground" />
@@ -149,7 +283,6 @@ export default function PengaturanClient({ config }: Props) {
         </div>
       </div>
 
-      {/* Section PIN Kiosk */}
       <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Lock size={16} className="text-muted-foreground" />
@@ -190,7 +323,6 @@ export default function PengaturanClient({ config }: Props) {
         </div>
       </div>
 
-      {/* Section Display TV */}
       <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Tv size={16} className="text-muted-foreground" />
@@ -224,7 +356,6 @@ export default function PengaturanClient({ config }: Props) {
         </div>
       </div>
 
-      {/* Section Video Edukasi */}
       <div className="bg-card border border-border rounded-xl p-5 flex flex-col gap-4">
         <div className="flex items-center gap-2">
           <Video size={16} className="text-muted-foreground" />
