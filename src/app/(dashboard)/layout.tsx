@@ -6,12 +6,11 @@ import AppHeader from "@/components/shared/AppHeader";
 import AppFooter from "@/components/shared/AppFooter";
 import { prisma } from "@/lib/prisma";
 
-type LayoutProps = {
+export default async function DashboardLayout({
+  children,
+}: {
   children: React.ReactNode;
-  params?: { title?: string };
-};
-
-export default async function DashboardLayout({ children }: LayoutProps) {
+}) {
   // Ambil token dari cookie
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
