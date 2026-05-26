@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Eye, EyeOff, LogIn, UserCircle, Lock } from "lucide-react";
@@ -8,24 +8,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function LoginPage() {
-  const router = useRouter();
+function SessionExpiredNotifier() {
   const searchParams = useSearchParams();
+  if (searchParams.get("reason") === "expired") {
+    setTimeout(() => {
+      toast.warning("Sesi anda telah berakhir, silakan login kembali");
+    }, 100);
+  }
+  return null;
+}
+
+type FormErrors = {
+  username?: string;
+  password?: string;
+};
+
+function LoginForm() {
+  const router = useRouter();
   const [form, setForm] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<FormErrors>({});
 
-  // Notif sesion expired
-  const reason = searchParams.get("reason");
-  if (reason === "expired") {
-    toast.warning("Sesi anda telah berakhir, silakan login kembali");
-  }
+  const clearError = (field: keyof FormErrors) => {
+    setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  const validate = (): boolean => {
+    const newErrors: FormErrors = {};
+    if (!form.username.trim()) newErrors.username = "Nama pengguna wajib diisi";
+    if (!form.password.trim()) newErrors.password = "Kata sandi wajib diisi";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async () => {
-    if (!form.username.trim() || !form.password.trim()) {
-      toast.error("Username dan password wajib diisi");
-      return;
-    }
+    if (!validate()) return;
 
     setLoading(true);
     try {
@@ -38,7 +56,17 @@ export default function LoginPage() {
       const json = await res.json();
 
       if (!json.success) {
-        toast.error(json.message ?? "Login gagal");
+        if (res.status === 401) {
+          setErrors({
+            password: json.message ?? "Nama pengguna atau kata sandi salah",
+          });
+          return;
+        }
+        if (res.status === 403) {
+          setErrors({ username: json.message });
+          return;
+        }
+        toast.error(json.message ?? "Terjadi kesalahan, silakan coba lagi");
         return;
       }
 
@@ -77,7 +105,7 @@ export default function LoginPage() {
       >
         <div className="p-7 md:p-9 space-y-6">
           <div className="space-y-1">
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-center text-xl font-semibold text-foreground">
               Selamat Datang
             </h2>
             <p className="text-sm text-muted-foreground">
@@ -86,7 +114,7 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-5">
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="username" className="text-sm font-medium">
                 Nama Pengguna
               </Label>
@@ -101,16 +129,20 @@ export default function LoginPage() {
                   placeholder="Masukkan nama pengguna"
                   autoComplete="username"
                   value={form.username}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, username: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, username: e.target.value }));
+                    clearError("username");
+                  }}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  className="pl-10"
+                  className={`pl-10 ${errors.username ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
               </div>
+              {errors.username && (
+                <p className="text-xs text-destructive">{errors.username}</p>
+              )}
             </div>
 
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="password" className="text-sm font-medium">
                 Kata Sandi
               </Label>
@@ -126,11 +158,12 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   autoComplete="current-password"
                   value={form.password}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, password: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setForm((prev) => ({ ...prev, password: e.target.value }));
+                    clearError("password");
+                  }}
                   onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-                  className="pl-10 pr-11"
+                  className={`pl-10 pr-11 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 />
                 <button
                   type="button"
@@ -143,6 +176,9 @@ export default function LoginPage() {
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {errors.password && (
+                <p className="text-xs text-destructive">{errors.password}</p>
+              )}
             </div>
 
             <label className="flex items-center gap-2.5 cursor-pointer group w-fit">
@@ -156,6 +192,7 @@ export default function LoginPage() {
               </span>
             </label>
 
+            {/* Submit */}
             <Button
               className="w-full mt-1 gap-2"
               size="lg"
@@ -178,5 +215,16 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <SessionExpiredNotifier />
+      </Suspense>
+      <LoginForm />
+    </>
   );
 }
