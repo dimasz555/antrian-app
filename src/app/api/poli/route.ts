@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     }
 
     // Cek apakah kode sudah dipakai
-    const existing = await prisma.poli.findUnique({
+    const existing = await prisma.poli.findFirst({
       where: { kode: input.kode },
     });
 

@@ -55,7 +55,7 @@ export async function PUT(
 
     // Jika kode diubah, cek apakah kode baru sudah dipakai poli lain
     if (input.kode && input.kode !== existing.kode) {
-      const duplicateKode = await prisma.poli.findUnique({
+      const duplicateKode = await prisma.poli.findFirst({
         where: { kode: input.kode },
       });
 
