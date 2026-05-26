@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     const body: LoginBody = await request.json();
 
     if (!body.username || !body.password) {
-      return errorResponse("Username dan password wajib diisi", 400);
+      return errorResponse("Nama pengguna dan kata sandi wajib diisi", 400);
     }
 
     const user = await prisma.user.findFirst({
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // check user exist
     if (!user) {
-      return errorResponse("Username atau password salah", 401);
+      return errorResponse("Nama pengguna atau kata sandi salah", 401);
     }
 
     // check active user
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // password validation
     const passwordValid = await verifyPassword(body.password, user.password);
     if (!passwordValid) {
-      return errorResponse("Username atau password salah", 401);
+      return errorResponse("Nama pengguna atau kata sandi salah", 401);
     }
 
     // generate JWT token
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60,
+      maxAge: 60 * 1,
       path: "/",
     });
 
