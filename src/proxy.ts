@@ -29,7 +29,7 @@ export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("token")?.value;
 
-  // ── 1. Auth routes (/login) ──────────────────────────────────────────────
+  // Auth routes (/login)
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
   if (isAuthRoute) {
     if (token) {
@@ -45,13 +45,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // ── 2. Public routes ─────────────────────────────────────────────────────
+  // Public routes
   const isPublicRoute = PUBLIC_ROUTES.some((route) =>
     pathname.startsWith(route),
   );
   if (isPublicRoute) return NextResponse.next();
 
-  // ── 3. Protected routes — harus punya token valid ────────────────────────
+  // protected routes
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
@@ -65,7 +65,7 @@ export function proxy(request: NextRequest) {
     );
   }
 
-  // ── 4. Role-based access control ─────────────────────────────────────────
+  // RBAC
   const allowedPaths = ROLE_ALLOWED_PATHS[payload.role] ?? [];
   const isAllowed = allowedPaths.some((p) => pathname.startsWith(p));
 
