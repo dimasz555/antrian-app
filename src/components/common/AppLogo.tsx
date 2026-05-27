@@ -15,13 +15,14 @@ export default function AppLogo({
 }: Props) {
   if (logoBase64) {
     return (
-      <Image
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
         src={logoBase64}
         alt={namaRS}
         width={size}
         height={size}
         style={{ objectFit: "contain", width: size, height: size }}
-        unoptimized
+        className={className}
       />
     );
   }

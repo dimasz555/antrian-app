@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useSSE } from "@/hooks/useSSE";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import LiveClock from "@/components/common/LiveClock";
 import { Volume2 } from "lucide-react";
 import AppLogo from "@/components/common/AppLogo";
@@ -154,13 +154,12 @@ function PoliCard({
   );
 }
 
-export default function DisplayClient({ poliData, config }: Props) {
+export default function DisplayClient({
+  poliData: initialPoliData,
+  config,
+}: Props) {
   const router = useRouter();
-  const logoRS = config.LOGO_RS ?? "";
-  const namaRS = config.NAMA_RS ?? "Sistem Antrian";
-  const tickerText =
-    config.TICKER_TEXT ?? "Harap menjaga ketenangan di area tunggu.";
-  const videoUrl = config.VIDEO_URL_1 ?? "";
+  const [poliData, setPoliData] = useState(initialPoliData);
 
   // Audio unlock
   const [audioUnlocked, setAudioUnlocked] = useState(false);
@@ -231,36 +230,58 @@ export default function DisplayClient({ poliData, config }: Props) {
     };
   });
 
-  const enqueueAntrian = (kodeAntrian: string, namaPoli: string) => {
-    queueRef.current.push({ kodeAntrian, namaPoli });
-    if (audioUnlockedRef.current) {
-      processQueueRef.current();
-    }
-  };
+  const enqueueAntrian = useCallback(
+    (kodeAntrian: string, namaPoli: string) => {
+      queueRef.current.push({ kodeAntrian, namaPoli });
+      if (audioUnlockedRef.current) {
+        processQueueRef.current();
+      }
+    },
+    [],
+  );
+
+  // Fetch data
+  const fetchPoliData = useCallback(async () => {
+    try {
+      const res = await fetch("/display/api", { cache: "no-store" });
+      if (!res.ok) return;
+      const data: PoliDisplay[] = await res.json();
+      setPoliData(data);
+    } catch {}
+  }, []);
 
   // SSE
   useSSE({
     poliId: "all",
     onMessage: (event) => {
       if (event.type === "antrian_dipanggil") {
-        const poli = poliData.find(
-          (p) => String(p.id) === String(event.poliId),
-        );
-        if (event.kodeAntrian && poli) {
-          enqueueAntrian(event.kodeAntrian as string, poli.nama);
-        }
-        router.refresh();
+        fetchPoliData().then(() => {
+          const poliNama = event.namaPoli as string | undefined;
+          if (event.kodeAntrian) {
+            const poli = poliData.find((p) => p.id === event.poliId);
+            const namaPoli = poliNama || poli?.nama || "poli";
+            enqueueAntrian(event.kodeAntrian as string, namaPoli);
+          }
+        });
+        return;
       }
+
       if (
         event.type === "antrian_baru" ||
         event.type === "antrian_update" ||
         event.type === "antrian_selesai" ||
         event.type === "antrian_terlewat"
       ) {
-        router.refresh();
+        fetchPoliData();
       }
     },
   });
+
+  const logoRS = config.LOGO_RS ?? "";
+  const namaRS = config.NAMA_RS ?? "Sistem Antrian";
+  const tickerText =
+    config.TICKER_TEXT ?? "Harap menjaga ketenangan di area tunggu.";
+  const videoUrl = config.VIDEO_URL_1 ?? "";
 
   const POLI_KIRI = 3;
   const poliKiri = poliData.slice(0, POLI_KIRI);

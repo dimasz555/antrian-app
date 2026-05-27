@@ -18,13 +18,13 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const namaRS =
     config.find((c) => c.key === "NAMA_RS")?.value ?? "Sistem Antrian";
-  const logoRS = config.find((c) => c.key === "LOGO_RS")?.value ?? "";
+  const hasLogo = config.some((c) => c.key === "LOGO_RS" && c.value);
 
   return {
     title: namaRS,
     description: `Sistem Informasi Antrian — ${namaRS}`,
-    icons: logoRS
-      ? { icon: logoRS }
+    icons: hasLogo
+      ? { icon: "/api/favicon" }
       : undefined,
   };
 }
