@@ -59,11 +59,6 @@ const PETUGAS_NAV: NavItem[] = [
     href: "/petugas/profil",
     icon: <UserCircle size={20} />,
   },
-  {
-    label: "Pengaturan",
-    href: "/petugas/pengaturan",
-    icon: <Settings size={20} />,
-  },
 ];
 
 type Props = {
@@ -80,20 +75,18 @@ export default function AppSidebar({ role, namaUser, namaRS, logoRS }: Props) {
   const router = useRouter();
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    router.refresh();
     router.push("/login");
   };
 
   return (
     <aside className="hidden md:flex flex-col h-screen w-64 bg-muted/40 border-r border-border fixed left-0 top-0 z-50">
-      <div className="px-6 py-6 border-b border-border flex items-center gap-3">
+      <div className="px-6 py-6 border-b border-border flex items-center gap-2">
         <AppLogo logoBase64={logoRS} size={36} />
         <div>
           <h1 className="text-sm font-bold text-primary leading-tight">
             {namaRS}
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Sistem Informasi Antrian
-          </p>
         </div>
       </div>
 
@@ -120,7 +113,7 @@ export default function AppSidebar({ role, namaUser, namaRS, logoRS }: Props) {
 
       <div className="border-t border-border px-3 py-3">
         <button
-          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
+          className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm text-destructive hover:bg-destructive/10 hover:text-destructive transition-all"
           onClick={handleLogout}
         >
           <LogOut size={18} />

@@ -4,6 +4,9 @@ import { useEffect, useRef } from "react";
 
 type SSEEvent = {
   type: string;
+  kodeAntrian?: string;
+  poliId?: number;
+  namaPoli?: string;
   [key: string]: unknown;
 };
 

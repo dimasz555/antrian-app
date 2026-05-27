@@ -1,6 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import DisplayClient from "./DisplayClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getData() {
   const today = new Date();
   const start = new Date(new Date().setHours(0, 0, 0, 0));

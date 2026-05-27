@@ -64,6 +64,7 @@ export async function panggilBerikutnya(poliId: number) {
       type: "antrian_dipanggil",
       kodeAntrian: updated.kodeAntrian,
       poliId,
+      namaPoli: updated.poli.nama,
     });
     broadcastToAll({
       type: "antrian_update",

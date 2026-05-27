@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 import PageHeader from "@/components/common/PageHeader";
 import AntrianClient from "./AntrianClient";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 async function getData(poliId: number) {
   const today = new Date();
   const start = new Date(new Date().setHours(0, 0, 0, 0));
