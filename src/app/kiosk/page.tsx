@@ -23,8 +23,8 @@ export default function KioskPinPage() {
   };
 
   const handleSubmit = async () => {
-    if (pin.length < 4) {
-      setError("PIN minimal 4 digit");
+    if (pin.length !== 6) {
+      setError("PIN harus 6 digit");
       return;
     }
 
@@ -55,7 +55,6 @@ export default function KioskPinPage() {
           </p>
         </div>
 
-        {/* PIN dots */}
         <div className="flex gap-4">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
@@ -69,12 +68,10 @@ export default function KioskPinPage() {
           ))}
         </div>
 
-        {/* Error */}
         {error && (
           <p className="text-destructive text-sm font-medium">{error}</p>
         )}
 
-        {/* Numpad */}
         <div className="grid grid-cols-3 gap-3 w-full">
           {DIGITS.map((digit, i) => {
             if (digit === "") return <div key={i} />;
@@ -103,10 +100,9 @@ export default function KioskPinPage() {
           })}
         </div>
 
-        {/* Tombol masuk */}
         <button
           onClick={handleSubmit}
-          disabled={loading || pin.length < 4}
+          disabled={loading || pin.length !== 6}
           className="w-full h-14 rounded-2xl bg-primary text-primary-foreground text-lg font-bold disabled:opacity-50 hover:opacity-90 active:scale-95 transition-all"
         >
           {loading ? "Memverifikasi..." : "Masuk"}
