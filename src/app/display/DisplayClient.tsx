@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import LiveClock from "@/components/common/LiveClock";
 import { Volume2 } from "lucide-react";
 import AppLogo from "@/components/common/AppLogo";
+import { formatYoutubeUrl } from "@/lib/youtube";
 
 type PoliDisplay = {
   id: number;
@@ -427,7 +428,7 @@ export default function DisplayClient({
           <div style={{ flex: 1, overflow: "hidden", minHeight: 0 }}>
             {videoUrl ? (
               <iframe
-                src={videoUrl}
+                src={formatYoutubeUrl(videoUrl)}
                 style={{
                   width: "100%",
                   height: "100%",
