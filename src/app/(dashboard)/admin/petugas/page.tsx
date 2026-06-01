@@ -7,7 +7,7 @@ import UserClient from "./PetugasClient";
 async function getData() {
   const [userList, poliList] = await Promise.all([
     prisma.user.findMany({
-      where: { deletedAt: null },
+      where: { deletedAt: null, role: "PETUGAS_POLI" },
       orderBy: { createdAt: "desc" },
       include: { poli: { select: { id: true, kode: true, nama: true } } },
     }),
@@ -26,8 +26,8 @@ async function getData() {
 export default async function AdminUsersPage() {
   const { userList, poliList } = await getData();
 
-  const totalAdmin = userList.filter((u) => u.role === "ADMIN").length;
-  const totalPetugas = userList.filter((u) => u.role === "PETUGAS_POLI").length;
+  const totalPetugas = userList.length;
+  const totalAktif = userList.filter((u) => u.aktif).length;
   const totalNonaktif = userList.filter((u) => !u.aktif).length;
 
   return (
@@ -37,22 +37,16 @@ export default async function AdminUsersPage() {
         description="Kelola akun petugas sistem antrian."
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total User" value={userList.length} icon={Users} />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <StatCard label="Total Petugas" value={totalPetugas} icon={Users} />
         <StatCard
-          label="Admin"
-          value={totalAdmin}
-          icon={ShieldCheck}
-          variant="default"
-        />
-        <StatCard
-          label="Petugas Poli"
-          value={totalPetugas}
+          label="Petugas Aktif"
+          value={totalAktif}
           icon={Stethoscope}
           variant="secondary"
         />
         <StatCard
-          label="Nonaktif"
+          label="Petugas Nonaktif"
           value={totalNonaktif}
           icon={UserX}
           variant="danger"
