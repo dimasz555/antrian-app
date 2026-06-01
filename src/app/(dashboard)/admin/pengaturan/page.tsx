@@ -9,7 +9,7 @@ export default async function AdminPengaturanPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Pengaturan Sistem"
-        description="Kelola konfigurasi sistem antrian."
+        description="Kelola konfigurasi sistem antrean."
       />
       <PengaturanClient config={config} />
     </div>

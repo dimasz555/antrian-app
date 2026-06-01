@@ -86,7 +86,7 @@ export async function deletePoli(id: number) {
     if (antrianAktif) {
       return {
         success: false,
-        message: "Tidak bisa menghapus poli yang masih ada antrian aktif",
+        message: "Tidak bisa menghapus poli yang masih ada antrean aktif",
       };
     }
 

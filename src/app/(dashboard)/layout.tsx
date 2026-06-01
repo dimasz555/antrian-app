@@ -47,7 +47,7 @@ export default async function DashboardLayout({
       <AppSidebar
         role={payload.role as "ADMIN" | "PETUGAS_POLI"}
         namaUser={user.nama}
-        namaRS={namaConfig?.value ?? "Sistem Antrian"}
+        namaRS={namaConfig?.value ?? "Sistem Informasi Manajemen Antrean"}
         logoRS={logoConfig?.value ?? ""}
       />
 
