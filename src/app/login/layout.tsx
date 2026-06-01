@@ -3,7 +3,7 @@ import AppFooter from "@/components/shared/AppFooter";
 
 export const metadata: Metadata = {
   title: "Masuk — Sistem Informasi Manajemen Antrean",
-  description: "Login petugas dan admin sistem antrian",
+  description: "Login petugas dan admin sistem antrean",
 };
 
 export default function LoginLayout({

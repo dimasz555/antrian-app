@@ -171,7 +171,7 @@ function PoliCard({
         }}
       >
         <p style={{ fontSize: "9px", color: "#8a9999" }}>
-          Antrian Menunggu: {poli.totalMenunggu}
+          Antrean Menunggu: {poli.totalMenunggu}
         </p>
       </div>
     </div>
@@ -302,7 +302,7 @@ export default function DisplayClient({
   });
 
   const logoRS = config.LOGO_RS ?? "";
-  const namaRS = config.NAMA_RS ?? "Sistem Antrian";
+  const namaRS = config.NAMA_RS ?? "Sistem Informasi Manajemen Antrean";
   const tickerText =
     config.TICKER_TEXT ?? "Harap menjaga ketenangan di area tunggu.";
   const videoUrl = config.VIDEO_URL_1 ?? "";

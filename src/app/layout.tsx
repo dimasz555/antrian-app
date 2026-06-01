@@ -17,12 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 
   const namaRS =
-    config.find((c) => c.key === "NAMA_RS")?.value ?? "Sistem Antrian";
+    config.find((c) => c.key === "NAMA_RS")?.value ?? "Sistem Informasi Manajemen Antrean";
   const hasLogo = config.some((c) => c.key === "LOGO_RS" && c.value);
 
   return {
     title: namaRS,
-    description: `Sistem Informasi Antrian — ${namaRS}`,
+    description: `Sistem Informasi Manajemen Antrean — ${namaRS}`,
     icons: hasLogo
       ? { icon: "/api/favicon" }
       : undefined,

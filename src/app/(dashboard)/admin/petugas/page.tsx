@@ -34,7 +34,7 @@ export default async function AdminUsersPage() {
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Manajemen Petugas"
-        description="Kelola akun petugas sistem antrian."
+        description="Kelola akun petugas sistem antrean."
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

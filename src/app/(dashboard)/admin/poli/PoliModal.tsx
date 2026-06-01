@@ -191,7 +191,7 @@ function PoliForm({
             <p className="text-xs text-destructive">{errors.urutan}</p>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Urutan poli pada layar display antrian.
+              Urutan poli pada layar display antrean.
             </p>
           )}
         </div>
