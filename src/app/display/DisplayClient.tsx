@@ -7,6 +7,7 @@ import LiveClock from "@/components/common/LiveClock";
 import { Volume2 } from "lucide-react";
 import AppLogo from "@/components/common/AppLogo";
 import { formatYoutubeUrl } from "@/lib/youtube";
+import { kodeSpeech, poliSpeech } from "@/lib/speech-rules";
 
 type PoliDisplay = {
   id: number;
@@ -44,36 +45,58 @@ function speakAntrian(kodeAntrian: string, namaPoli: string): Promise<void> {
     }
     activeUtterances = [];
 
-    const kode = kodeAntrian.replace("-", " ");
-    const utterance = new SpeechSynthesisUtterance(
-      `Nomor antrean ${kode}, silakan menuju ruangan ${namaPoli}`,
-    );
+    const kode = kodeSpeech(kodeAntrian);
+    const poli = poliSpeech(namaPoli);
 
-    // Simpan referensi ke array global untuk mencegah Garbage Collection
-    activeUtterances.push(utterance);
-
-    utterance.lang = "id-ID";
-    utterance.rate = 0.85;
-    utterance.volume = 1;
-
+    const parts = [
+      { text: "Nomor antrean", rate: 0.8 },
+      { text: kode, rate: 0.75 },
+      { text: `silakan menuju ruangan ${poli}`, rate: 0.85 },
+    ];
+    let currentIndex = 0;
     let isResolved = false;
+
     const finish = () => {
       if (isResolved) return;
       isResolved = true;
-      activeUtterances = activeUtterances.filter((u) => u !== utterance);
+      activeUtterances = [];
       resolve();
     };
 
-    utterance.onend = finish;
-    utterance.onerror = (e) => {
-      console.warn("SpeechSynthesisUtterance error:", e);
-      finish();
+    const speakNext = () => {
+      if (currentIndex >= parts.length) {
+        finish();
+        return;
+      }
+
+      const part = parts[currentIndex];
+      currentIndex++;
+
+      const utterance = new SpeechSynthesisUtterance(part.text);
+      activeUtterances.push(utterance);
+
+      utterance.lang = "id-ID";
+      utterance.rate = part.rate;
+      utterance.volume = 1;
+
+      utterance.onend = () => {
+        activeUtterances = activeUtterances.filter((u) => u !== utterance);
+        speakNext(); // lanjut ke bagian berikutnya
+      };
+
+      utterance.onerror = (e) => {
+        console.warn("SpeechSynthesisUtterance error:", e);
+        activeUtterances = activeUtterances.filter((u) => u !== utterance);
+        speakNext();
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    // Safety timeout: jika tidak ada respon, paksa selesaikan antrian agar tidak macet
-    setTimeout(finish, 10000);
+    // Safety timeout
+    setTimeout(finish, 15000);
 
-    window.speechSynthesis.speak(utterance);
+    speakNext();
   });
 }
 
@@ -288,7 +311,7 @@ export default function DisplayClient({
   const poliKiri = poliData.slice(0, POLI_KIRI);
   const poliBawah = poliData.slice(POLI_KIRI);
 
-  const tickerContent = `${tickerText}     •     ${tickerText}     •     ${tickerText}`;
+  const tickerContent = tickerText;
 
   return (
     <div
@@ -505,6 +528,7 @@ export default function DisplayClient({
           flexShrink: 0,
         }}
       >
+        {/* Label INFO LAYANAN */}
         <div
           style={{
             background: "#e6951a",
@@ -543,29 +567,35 @@ export default function DisplayClient({
             INFO LAYANAN
           </span>
         </div>
-        <div style={{ flex: 1, overflow: "hidden", padding: "0 10px" }}>
-          <span
-            style={{
-              color: "#000",
-              fontSize: "13px",
-              fontWeight: 700,
-              whiteSpace: "nowrap",
-              display: "inline-block",
-              animation: "marquee 30s linear infinite",
-            }}
-          >
-            {tickerContent}
+
+        {/* Teks berjalan */}
+        <div style={{ flex: 1, overflow: "hidden", display: "flex" }}>
+          <span className="ticker-text">
+            {tickerText}&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;{tickerText}
+            &nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;
+          </span>
+          <span className="ticker-text" aria-hidden="true">
+            {tickerText}&nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;{tickerText}
+            &nbsp;&nbsp;&nbsp;||&nbsp;&nbsp;&nbsp;
           </span>
         </div>
       </div>
 
       <style>{`
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
         @keyframes marquee {
-          0%   { transform: translateX(60vw); }
-          100% { transform: translateX(-100%); }
-        }
-      `}</style>
+        0%   { transform: translateX(0); }
+        100% { transform: translateX(-100%); }
+      }
+      .ticker-text {
+        color: #000;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+        display: inline-block;
+        animation: marquee 30s linear infinite;
+        flex-shrink: 0;
+      }
+`}</style>
     </div>
   );
 }

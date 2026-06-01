@@ -173,7 +173,7 @@ export default function PengaturanClient({ config }: Props) {
     }
     setLoading(true);
     try {
-      const value = filtered.join(" • ");
+      const value = filtered.join(" || ");
       const result = await upsertKonfigurasi([{ key: "TICKER_TEXT", value }]);
       if (!result.success) {
         toast.error(result.message);
